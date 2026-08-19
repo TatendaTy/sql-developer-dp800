@@ -62,3 +62,4 @@ END;
 -- 1. Consider adding indexes to improve performance of JOIN operations and filter predicates.
 -- 2. Extend the stored procedure to handle multiple line items per order.
 -- 3. Add permissions to expose the view safely to end users.
+
