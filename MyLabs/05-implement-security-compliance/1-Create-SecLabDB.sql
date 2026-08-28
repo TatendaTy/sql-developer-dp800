@@ -1,0 +1,8 @@
+USE master;
+GO
+
+IF DB_ID('SecurityLabDB') IS NULL
+BEGIN
+    CREATE DATABASE SecurityLabDB;
+END
+GO
