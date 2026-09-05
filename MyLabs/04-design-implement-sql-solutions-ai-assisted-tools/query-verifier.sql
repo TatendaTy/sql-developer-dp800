@@ -5,3 +5,4 @@ GO
 SELECT TOP (20) *
 FROM dbo.vw_ProductSalesAnalysis
 ORDER BY ProductID;
+
