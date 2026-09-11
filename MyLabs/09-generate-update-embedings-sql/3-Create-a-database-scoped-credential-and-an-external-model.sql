@@ -45,6 +45,16 @@ WITH (
 );
 GO
 
+-- CREATE EXTERNAL MODEL my_chat_model
+-- WITH (
+--     LOCATION = 'https://exporter-valley-giddily.ngrok-free.dev/api/chat',          -- Ollama chat endpoint
+--     API_FORMAT = 'Ollama',
+--     MODEL_TYPE = TEXT_COMPLETION,
+--     MODEL = 'qwen2.5-coder:1.5b',                 -- must match exactly what you pulled with ollama
+--     CREDENTIAL = [https://exporter-valley-giddily.ngrok-free.dev]
+-- );
+-- GO
+
 -- Enable the feature
 EXEC sp_configure 'external rest endpoint enabled', 1;
 RECONFIGURE;
