@@ -1,2 +1,3 @@
-.tokensave
+.tokensave/
 .env
+.vs/
