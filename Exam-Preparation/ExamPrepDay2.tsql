@@ -1,0 +1,229 @@
+/* DP800 Exam Prep
+   DAY 2: Programmability
+*/
+
+-- 1. Views
+-- Standard view
+CREATE VIEW dbo.vs_CustomerOrders AS
+SELECT c.CustomerID, c.CustomerName, o.OrderID, o.OrderDate, o.TotalAmount
+FROM dbo.Customers c
+JOIN dbo.Orders o ON c.CustomerID = o.CustomerID;
+
+-- Indexed (materialized) view - requires SCHEMABINDING 
+CREATE VIEW dbo.vw_OrderSummary
+WITH SCHEMABINDING
+AS
+SELECT CustomerID,
+       COUNT_BIG(*) AS OrderCount,	-- COUNT_BIG returns BIGINT (8 byte integer, counting all rows including NULL values)
+       SUM(TotalAmount) AS TotalRevenue,
+       MIN(OrderDate) AS FirstOrder,
+       MAX(OrderDate) AS LastOrder
+FROM dbo.Orders
+GROUP BY CustomerID;
+
+-- Unique clustered index required for indexed view
+CREATE UNIQUE CLUSTERED INDEX IX_vw_OrderSummary ON dbo.vw_OrderSummary (CUSTOMERID);
+
+-- Partitioned view (across server/shards)
+CREATE VIEW dbo.vw_AllOrders AS
+SELECT * FROM Server1.DB.dbo.Order_2022
+UNION ALL
+SELECT * FROM Server2.DB.dbo.Orders_2023
+UNION ALL
+SELECT * FROM Server3.DB.dbo.Orders_2024;
+
+-- 2. Scalar Functions
+
+-- Scalar function (Single value return)
+CREATE FUNCTION dbo.fn_CalculateTax (@Amount DECIMAL(18,2), @TaxRate DECIMAL(5,4))
+RETURNS DECIMAL(18, 2)
+WITH SCHEMABINDING, RETURNS NULL ON NULL INPUT
+AS
+BEGIN
+    RETURN ROUND(@Amount * @TaxRate, 2);
+END;
+
+-- Usage
+SELECT dbo.fn_CalculateTax(TotalAmount, 0.0825) AS TAX FROM Orders;
+
+-- Inline scalar - better performace
+CREATE OR ALTER FUNCTION dbo.fn_GetCustomerTier (@CustomerID INT)
+RETURNS VARCHAR(20)
+WITH INLINE = ON
+AS
+BEGIN
+    RETURN (
+        SELECT CASE
+	    WHEN TotalOrders > 100 THEN 'Platinum'
+	    WHEN TotalOrders > 50 THEN 'GOLD'
+	    WHEN TotalOrders > 10 THEN 'Silver'
+	    ELSE 'BRONZE'
+	END
+	FROM dbo.CustomerStats WHERE CustomerID = @CustomerID
+    );
+END;
+
+-- 3. Table-Valued Functions (TVFs)
+-- 
+CREATE FUNCTION dbo.fn_OrdersByCustomer (@CUSTOMERID INT)
+RETURNS TABLE
+WITH SCHEMABINDING
+AS
+RETURN
+SELECT OrderID, OrderDate, TotalAmount, Status
+FROM dbo.Orders
+WHERE CustomerID = @CustomerID;
+
+-- Multi-statement TVF (to be used when logic too complex for inline)
+CREATE FUNCTION dbo.fn_OrderDetailsWithCalc (@OrderID INT)
+RETURNS @Result TABLE (
+    ORDERID INT,
+    ProductName NVARCHAR(100),
+    Quantity INT,
+    UnitPrice DECIMAL(10, 2),
+    LineTotal DECIMAL(12, 2),
+    TaxAmount DECIMAL(12, 2)
+)
+AS
+BEGIN
+    INSERT @Result
+    SELECT od.OrderID, p.ProductName, od.Quantity, od.UnitPrice,
+           od.Quantity * od.UnitPrice AS LineTotal,
+           ROUND(od.Quantity * od.UnitPrice * 0.0825, 2) AS TaxAmount
+    FROM dbo.OrderDetails od
+    JOIN dbo.Products p ON od.ProductID = p.ProductID
+    WHERE od.OrderID = @OrderID;
+    RETURN;
+END;
+
+-- Usage
+SELECT * FROM dbo.fn_OrdersByCustomer(123);
+SELECT * FROM dbo.fn_OrderDetailsWithCalc(456);
+
+-- 4. Stored Procedures
+CREATE OR ALTER PROCEDURE dbo.usp_ProcessOrder
+    @ORDERID INT,
+    @ProcessedBy NVARCHAR(100) = SYSTEM_USER,
+    @TrackingNumber VARCHAR(50) OUTPUT
+AS
+BEGIN
+    SET NOCOUN, XACT_ABORT ON;
+
+    BEGIN TRY
+        BEGIN TRANSACTION;
+        
+        -- Validate
+        IF NOT EXISTS (SELECT 1 FROM dbo.Orders WHERE OrderID = @OrderID)
+            THROW 50001, 'Order not found', 1;
+
+        -- Business logic
+        UPDATE dbo.Orders
+        SET Status = 'Processing',
+            ProcessedDate = SYSUTCDATETIME(),
+            ProcessedBy = @ProcessedBy
+        WHERE OrderID = @OrderID;
+
+        -- Generate tracking
+        SET @TrackingNumber = 'TRK' + FORMAT(@OrderID, '00000000') + 
+                              FORMAT(SYSUTCDATETIME(), 'yyyyMMddHHmmss');
+
+        INSERT INTO dbo.OrderTracking (OrderID, TrackingNumber, Status, CreatedDate)
+        VALUES (@OrderID, @TrackingNumber, 'Processing', SYSUTCDATETIME());
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
+
+        -- Re-throw with context
+        DECLARE @ErrorMsg NVARCHAR(4000) = ERROR_MESSAGE();
+        DECLARE @ErrorSev INT = ERROR_SEVERITY();
+        DECLARE @ErrorState INT = ERROR_STATE();
+
+        RAISERROR(@ErrorMsg,@ErrorSev, @ErrorState);
+        Return -1;
+	END CATCH
+	
+	RETURN 0;
+END;
+
+-- Execute with output parameter
+DECLARE @Tracking VARCHAR(50);
+EXEC dbo.usp_ProcessOrder @OrderID = 123, @TrackingNumber = @Tracking OUTPUT;
+SELECT @Tracking;
+
+-- 5. Triggers
+-- DML Trigger
+CREATE TRIGGER trg_Orders_Audit
+ON dbo.Orders
+AFTER INSERT, UPDATE, DELETE
+AS
+BEGIN
+	SET NOCOUNT ON;
+	
+	INSERT INTO dbo.OrderAudit (OrderID, ActionType, ChangedBy, ChangedDate, OldData, NewData)
+	SELECT
+		COALESCE(i.OrderID, d.OrderID),
+		CASE
+			WHEN i.OrderID IS NULL THEN 'DELETE'
+			WHEN d.OrderID IS NULL THEN 'INSERT'
+			ELSE
+		END,
+		SYSTEM_USER,
+		SYSUTCDATETIME(),
+		(SELECT * FROM deleted FOR JSON AUTO, WITHOUT_ARRAY_WRAPPER),
+		(SELECT * FROM inserted FOR JSON AUTO, WITHOUT_ARRAY_WRAPPER)
+	FROM inserted i
+	FULL OUTER JOIN deleted d ON i.ORDERID = d.OrderID;
+END
+
+-- INSTEAD OF Trigger (for view updates)
+CREATE TRIGGER trg_vw_CustomerOrders_InsteadOfInsert
+ON dbo.vw_CustomerOrders
+INSTEAD OF INSERT
+AS
+BEGIN
+	SET NOCOUNT ON;
+	
+	INSERT INTO dbo.Orders (CustomerID, OrderDate, TotalAmount, Status)
+	SELECT CustomerID, OrderDate, TotalAmount, 'Pending'
+	FROM inserted;
+END;
+
+-- DDL Trigger (database-level)
+CREATE TRIGGER trg_PreventDropTable
+ON DATABASE
+FOR DROP_TABLE, ALTER_TABLE
+AS
+BEGIN
+	IF ORIGINAL_LOGIN() NOT IN ('sa', 'dbo_main')
+	BEGIN
+		PRINT 'Unauthorized DDL operation blocked.';
+		ROLLBACK;
+	END
+END;
+
+-- LOGON Trigger
+CREATE TRIGGER trg_LimitConnections
+ON ALL SERVER
+FOR LOGON
+AS
+BEGIN
+	IF ORIGINAL_LOGIN() = 'app_user'
+		AND (SELECT COUNT(*) FROM sys.dm_exec_Sessions
+			WHERE original_login_name = 'app_user' AND is_user_process = 1) > 50
+	BEGIN
+		ROLLBACK; -- Reject connection
+	END
+END;
+
+
+
+
+
+
+
+
+
+
+

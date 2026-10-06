@@ -1,0 +1,39 @@
+/* DP800 Exam Prep
+   Day 6: Performace Optimization
+   
+   LEARNING OBJECTIVES
+   -> Database configurations (MAXDOP, memory, tempdb)
+   -> Transaction isolation levels and concurrency controls
+   -> Query execution plans (estimated vs actual)
+   -> DMVs for performance monitoring
+   -> Query Store configuration and analysis
+   -> Query Performance Insight (Azure SQL)
+   -> Blocking and deadlocks identification and resolution
+   
+*/
+
+/* Core Concepts */
+/* 1. Database Configuration Settings */
+-- MAXDOP (Max Degree of Parallelism)
+-- Instance level
+EXEC sp_configure 'show advanced options', 1; RECONFIGURE;
+EXEC sp_configure 'max degree of parallelism', 8;  -- 0 = all CPUs, 1 = no parallelism
+RECONFIGURE;
+
+-- Database level (SQL Server 2016+ / Azure SQL)
+ALTER DATABASE SCOPED CONFIGURATION SET MAXDOP = 4;
+
+-- Query level hint
+SELECT * FROM LargeTable OPTION (MAXDOP 2);
+
+-- Cost Threshold for Parallelism
+EXEC sp_configure 'cost threshold for parallelism', 50;  -- Default 5, increase to 25-50
+RECONFIGURE;
+
+-- Memory Settings
+EXEC sp_configure 'max server memory (MB)', 122880;  -- Leave 4-8GB for OS
+RECONFIGURE;
+EXEC sp_configure 'min server memory (MB)', 4096;
+RECONFIGURE;
+
+/* 
