@@ -99,16 +99,16 @@ Two modes:
 
 ### **Auditing and Compliance**
 
-- Capture compliance evidence with comprehensive audit trails across all SQL platforms
+Capture compliance evidence with comprehensive audit trails across all SQL platforms
 
 #### **SQL Server Audit**
 
 - Server-level and database-level audit specs
 - Writes to Event Log or file targets
 - Audit groups:
-  BATCH_COMPLETED,
-  LOGIN_CHANGE,
-  SCHEMA_OBJECT_ACCESS
+  - BATCH_COMPLETED,
+  - LOGIN_CHANGE,
+  - SCHEMA_OBJECT_ACCESS
 - Fine-grained action groups per DB object
 - Combine with Extended Events for diagnostics
 
@@ -130,7 +130,7 @@ Two modes:
 
 ### **Security Decision Guide**
 
-- choose the right security control based on what you need to protect and from whom.
+Choose the right security control based on what you need to protect and from whom.
 
 | Requirement                                  | Recommended Control                           |
 | -------------------------------------------- | --------------------------------------------- |
@@ -143,7 +143,9 @@ Two modes:
 | Track who accessed what and when             | Auditing (server & database audit specs)      |
 | Detect SQL injection and anomalous access    | Microsoft Defender for SQL + Threat Detection |
 
-`Exam tip:` Exam tip: Masking is obfuscation, not encryption. If the requirement is "DBA must not see plaintext," the answer is Always Encrypted, not DDM.
+```text
+! Exam tip: Exam tip: Masking is obfuscation, not encryption. If the requirement is "DBA must not see plaintext," the answer is Always Encrypted, not DDM.
+```
 
 ## Module 2: Optimize Database Performance
 
@@ -214,12 +216,10 @@ Balance consistency and throughput by choosing the right isolation level for eac
 | READ COMMITTED SNAPSHOT  | No         | Yes            | Yes     | None (MVCC) |
 
 ```text
-	NOTE
-	Azure SQL Database Default: READ COMMITTED SNAPSHOT
-
-	Azure SQL Database enables RCSI by default, using row versioning instead of locks.
-	This eliminates reader-writer blocking but uses tempdb for the version store.
-	SQL Server on-premises defaults to pessimistic READ COMMITTED with shared locks.
+! NOTE
+-> Azure SQL Database Default: READ COMMITTED SNAPSHOT
+-> Azure SQL Database enables RCSI by default, using row versioning instead of locks. This eliminates reader-writer blocking but uses tempdb for the version store.
+-> SQL Server on-premises defaults to pessimistic READ COMMITTED with shared locks.
 ```
 
 ### **Execution Plans & Dynamic Management Views**
@@ -418,12 +418,11 @@ Generate secure, production-ready APIs from your database schema with zero appli
 **GraphQL Depth Limiting**: Query depth limits prevent abuse and excessive resource consumption
 
 ```text
-
-	! Exam Tip: Revise Data API Builder and its features for the DP-800 exam. Understand how it generates APIs, handles authentication and authorization, and integrates with Azure services. Also, be familiar with JSON Configuration definition, setting up relationships, and implementing security measures like CORS and depth limiting.
+! Exam Tip: Revise Data API Builder and its features for the DP-800 exam. Understand how it generates APIs, handles authentication and authorization, and integrates with Azure services. Also, be familiar with JSON Configuration definition, setting up relationships, and implementing security measures like CORS and depth limiting.
 ```
 
 ```text
-    ! Exam Tip: this part of the exam focuses on entities, permissions, relationships, and security features of Data API Builder. Be prepared to answer questions on how to configure these aspects in the JSON configuration file and how they affect the generated REST and GraphQL APIs.
+! Exam Tip: this part of the exam focuses on entities, permissions, relationships, and security features of Data API Builder. Be prepared to answer questions on how to configure these aspects in the JSON configuration file and how they affect the generated REST and GraphQL APIs.
 ```
 
 ### **Monitoring & Event-Driven Patterns**
