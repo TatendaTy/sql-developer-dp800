@@ -418,6 +418,7 @@ Generate secure, production-ready APIs from your database schema with zero appli
 **GraphQL Depth Limiting**: Query depth limits prevent abuse and excessive resource consumption
 
 ```text
+
 ! Exam Tip: Revise Data API Builder and its features for the DP-800 exam. Understand how it generates APIs, handles authentication and authorization, and integrates with Azure services. Also, be familiar with JSON Configuration definition, setting up relationships, and implementing security measures like CORS and depth limiting.
 ```
 

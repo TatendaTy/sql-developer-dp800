@@ -49,7 +49,7 @@ _Build a strong relational foundation_
 - Work with App developers, DBAs, architects, Al and DevSecOps engineers, Security and compliance teams
 
 ```text
-!Tip: SQL Projects, CI/CD, and Azure integration are key skills for this role.
+! Tip: SQL Projects, CI/CD, and Azure integration are key skills for this role.
 ```
 
 ## Module 1: Design and Implement Database Objects
@@ -89,7 +89,7 @@ Tables, indexes, constraints, JSON columns, partitioning, and specialized table 
 - **Graph** NODE + EDGE tables with MATCH clause. Social, fraud, recommendation use cases.
 
 ```text
-!Tip: Match the table type to your workload - temporal for audit, ledger for compliance, graph for relationships, in-memory for high-throughput.
+! Tip: Match the table type to your workload - temporal for audit, ledger for compliance, graph for relationships, in-memory for high-throughput.
 ```
 
 ### Optimize with Indexes
@@ -350,7 +350,9 @@ Assign positions within partitions.
 #### **Offset**
 
 `LAG`/`LEAD`
+
 `FIRST_VALUE`
+
 `LAST_VALUE`
 
 Access previous/next rows or partition boundaries without self-joins.
@@ -358,7 +360,9 @@ Access previous/next rows or partition boundaries without self-joins.
 #### **Aggregate**
 
 `SUM`/`AVG`
+
 `COUNT`
+
 `MIN`/`MAX`
 
 Running totals, moving averages over `ROWS BETWEEN` or `RANGE` frames.
@@ -366,8 +370,11 @@ Running totals, moving averages over `ROWS BETWEEN` or `RANGE` frames.
 #### **Distribution**
 
 `PERCENT_RANK`
+
 `CUME_DIST`
+
 `PERCENTILE_CONT`
+
 `PERCENTILE_DISC`
 
 Statistical distribution and percentile calculations within groups.
