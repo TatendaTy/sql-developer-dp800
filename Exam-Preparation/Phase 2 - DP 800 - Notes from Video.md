@@ -45,9 +45,9 @@ There are two modes to know:
 - Best for: data at rest protection when server trust is acceptable
 
 ```text
-	! Note: TDE is not a column-level encryption method. It encrypts the entire database at rest, including backups and transaction logs, but does not provide column-level granularity or protect data in use.
+! Note: TDE is not a column-level encryption method. It encrypts the entire database at rest, including backups and transaction logs, but does not provide column-level granularity or protect data in use.
 
-	TDE -> Transparent Data Encryption
+TDE -> Transparent Data Encryption
 ```
 
 ### **Dynamic Data Masking & Row-Level Security**
@@ -65,7 +65,7 @@ Two modes:
 | Random        | `FUNCTION='random(1,100)'`     | Random Number |
 | Partial       | `FUNCTION='partial(2,"XX",1)'` | abXXe         |
 
--> NB\* - DDM is obfuscation, not encryption.
+&rarr; **NB** - DDM is obfuscation, not encryption.
 
 #### **2. Row-Level Security (RLS)**
 
@@ -196,7 +196,7 @@ Choose the right compute and storage configuration for your workload requirement
 
 **1. DTU Model**
 
-Bundled CPU + 1/O + memory. Simple, predictable pricing. Best when you want a pre-configured compute package.
+Bundled CPU + I/O + memory. Simple, predictable pricing. Best when you want a pre-configured compute package.
 
 **2. vCore Model**
 

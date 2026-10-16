@@ -36,10 +36,14 @@ _Build a strong relational foundation_
 ### Key Skills
 
 - T-SQL development
-- Designing relational and semi-structured data models (**Tip**: Read `grokking Relational Database Design by Qiang Hao, Michail Tsikerdekis`)
+- Designing relational and semi-structured data models
 - CI/CD with GitHub
 - Al fundamentals: embeddings, vectors, models
 - Al-assisted development tools
+
+```text
+! Tip: Read `grokking Relational Database Design by Qiang Hao, Michail Tsikerdekis`
+```
 
 ### Role
 
@@ -119,7 +123,7 @@ A vector index is a specialized index designed to optimize similarity searches o
 _SQL 2025 introduces native support for vector data types and indexing, allowing developers to store and query high-dimensional vectors directly within the database. This is particularly useful for applications that rely on embeddings, such as natural language processing or image recognition._
 
 ```text
-!Tip: Index columns used in WHERE, JOIN, and ORDER BY clauses for best performance
+! Tip: Index columns used in WHERE, JOIN, and ORDER BY clauses for best performance
 ```
 
 ### Constraints & JSON Support
@@ -416,7 +420,10 @@ function() OVER ( PARTITION BY col ORDER BY col ROWS BETWEEN UNBOUNDED PRECEDING
 - `REGEXP_LIKE` - filter rows matching a pattern (replaces complex `LIKE` chains)
 - `REGEXP_REPLACE` - pattern-based string replacement with capture groups
 - `REGEXP_SUBSTR` - extract substrings matching a pattern
+- `REGEXP_INSTR` - returns the starting position of a pattern match within a string. Returns 0 if no match is found
 - `REGEXP_COUNT` - count occurrences of a pattern in text
+- `REGEXP_MATCHES` - is a table-valued function that returns all pattern matches as separate rows
+- `REGEXP_SPLIT_TO_TABLE` - is a table-valued function that splits a string into rows based on a delimiter pattern
 - `SARGable`: can use indexes for efficient execution
 - ICU regex engine - full Unicode support, `POSIX` classes
 - Use cases: email validation, phone parsing, data cleansing, log analysis

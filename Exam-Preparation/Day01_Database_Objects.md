@@ -6,7 +6,7 @@
 
 ## 🎯 Learning Objectives
 
-- [ ] Design and implement tables: data types, sizing, columns, indexes, columnstore indexes
+- [x] Design and implement tables: data types, sizing, columns, indexes, columnstore indexes
 - [ ] Specialized tables: in-memory, temporal, external, ledger, graph
 - [ ] JSON columns and indexes
 - [ ] Database constraints: PRIMARY KEY, FOREIGN KEY, UNIQUE, CHECK, DEFAULT
