@@ -57,7 +57,8 @@ ORDER BY improvement_measure DESC;
 
 /*
 You should see a recommendation with Status as an equality column and OrderDate as an inequality column. 
-The improvement_measure combines the average query cost, the estimated improvement percentage, and how often the query runs. Higher values mean greater benefit. These are recommendations, not directives. 
+The improvement_measure combines the average query cost, the estimated improvement percentage, and how often the query runs. Higher values mean greater benefit. 
+These are recommendations, not directives. 
 Always test a new index on both read and write performance before adding it to production.
 */
 

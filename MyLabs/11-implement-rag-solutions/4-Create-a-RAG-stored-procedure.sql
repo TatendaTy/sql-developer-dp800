@@ -85,10 +85,10 @@ BEGIN
     /* -------------------------------------------------
     Step 4: Call the local Ollama chat model via ngrok
     ------------------------------------------------- */
-    DECLARE @CredentialName sysname = N'https://exporter-valley-giddily.ngrok-free.dev';
+    DECLARE @CredentialName sysname = N'${NGROK_URL}';
 
     EXECUTE @returnValue = sp_invoke_external_rest_endpoint
-        @url = N'https://exporter-valley-giddily.ngrok-free.dev/api/chat',
+        @url = N'${OLLAMA_CHAT_URL}',
         @method = 'POST',
         @payload = @payload,
         @credential = @CredentialName,

@@ -26,6 +26,17 @@
 
 - You can submit bugs, changes, improvement and ideas. Find a new Azure feature before we have? Submit a new demo!
 
+## Environment Configuration
+
+Before running the AI/embedding labs (Days 9–11), copy the provided `.env` template and configure your own values:
+
+- `DB_MASTER_KEY_PASSWORD` — Database master key password (replaces hardcoded `WordPASS2468`)
+- `NGROK_URL` — Your ngrok tunnel URL for Ollama (replaces hardcoded `https://exporter-valley-giddily.ngrok-free.dev`)
+- `OLLAMA_EMBED_URL` — Ollama embeddings endpoint
+- `OLLAMA_CHAT_URL` — Ollama chat endpoint
+
+Never commit `.env` to version control. It is already listed in `.gitignore`.
+
 ## Notes
 
 ### Classroom Materials

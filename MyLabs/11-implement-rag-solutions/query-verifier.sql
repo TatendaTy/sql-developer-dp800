@@ -5,15 +5,14 @@ GO
    2️⃣  (Re)create the database‑scoped credential
        Identity = HTTPEndpointHeaders  (no auth needed for Ollama)
    ------------------------------------------------- */
-DECLARE @NgrokUrl nvarchar(200) = N'https://exporter-valley-giddily.ngrok-free.dev';   -- <<< EDIT THIS
-                                                               -- e.g. https://exporter-valley-giddily.ngrok-free.dev
+DECLARE @NgrokUrl nvarchar(200) = N'${NGROK_URL}';   -- Set in .env
 
 
 /* -------------------------------------------------
    3️⃣  Grant the needed permission so the current user can use the credential
    ------------------------------------------------- */
 -- REFERENCES permission allows the credential to be referenced by external objects
-GRANT REFERENCES ON DATABASE SCOPED CREDENTIAL::[https://exporter-valley-giddily.ngrok-free.dev] TO [public];
+GRANT REFERENCES ON DATABASE SCOPED CREDENTIAL::[${NGROK_URL}] TO [public];
 GO
 
 /* -------------------------------------------------
@@ -27,7 +26,7 @@ SELECT
     modify_date,
     has_perms_by_name(name, 'DATABASE SCOPED CREDENTIAL', 'REFERENCES') AS has_reference_perm
 FROM sys.database_scoped_credentials
-WHERE name = 'https://exporter-valley-giddily.ngrok-free.dev';
+WHERE name = '${NGROK_URL}';
 GO
 
 /* -------------------------------------------------

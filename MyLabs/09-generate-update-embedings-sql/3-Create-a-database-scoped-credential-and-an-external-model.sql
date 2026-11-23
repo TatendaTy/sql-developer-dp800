@@ -5,7 +5,7 @@ GO
 -- Ensure a database master key exists (needed for scoped credentials)
 IF NOT EXISTS (SELECT * FROM sys.symmetric_keys WHERE name = '##MS_DatabaseMasterKey##')
 BEGIN
-    CREATE MASTER KEY ENCRYPTION BY PASSWORD = 'WordPASS2468';
+    CREATE MASTER KEY ENCRYPTION BY PASSWORD = '${DB_MASTER_KEY_PASSWORD}';  -- Set in .env
 END
 GO
 
@@ -23,13 +23,13 @@ BEGIN
 END
 GO
    
-IF EXISTS (SELECT * FROM sys.database_scoped_credentials WHERE name = N'https://exporter-valley-giddily.ngrok-free.dev')
+IF EXISTS (SELECT * FROM sys.database_scoped_credentials WHERE name = N'${NGROK_URL}')
 BEGIN
-    DROP DATABASE SCOPED CREDENTIAL [https://exporter-valley-giddily.ngrok-free.dev];
+    DROP DATABASE SCOPED CREDENTIAL [${NGROK_URL}];
 END
 GO
 
-CREATE DATABASE SCOPED CREDENTIAL [https://exporter-valley-giddily.ngrok-free.dev]
+CREATE DATABASE SCOPED CREDENTIAL [${NGROK_URL}]
 WITH IDENTITY = 'HTTPEndpointHeaders',   -- valid identity for unauthenticated HTTPS calls
      SECRET = '{}';            -- Ollama doesn’t use a secret
 GO
@@ -37,23 +37,23 @@ GO
 /*  Create the external model – note the API_FORMAT value must be 'Ollama' (case‑sensitive) */
 CREATE EXTERNAL MODEL qwen3_embedding_0_6B
 WITH (
-    LOCATION = 'https://exporter-valley-giddily.ngrok-free.dev/api/embed',   -- Ollama embeddings endpoint
+    LOCATION = '${OLLAMA_EMBED_URL}',   -- Ollama embeddings endpoint (set in .env)
     API_FORMAT = 'Ollama',
     MODEL_TYPE = EMBEDDINGS,
     MODEL = 'qwen3-embedding:0.6b',
-    CREDENTIAL = [https://exporter-valley-giddily.ngrok-free.dev]
+    CREDENTIAL = [${NGROK_URL}]
 );
 GO
 
--- CREATE EXTERNAL MODEL my_chat_model
--- WITH (
---     LOCATION = 'https://exporter-valley-giddily.ngrok-free.dev/api/chat',          -- Ollama chat endpoint
---     API_FORMAT = 'Ollama',
---     MODEL_TYPE = TEXT_COMPLETION,
---     MODEL = 'qwen2.5-coder:1.5b',                 -- must match exactly what you pulled with ollama
---     CREDENTIAL = [https://exporter-valley-giddily.ngrok-free.dev]
--- );
--- GO
+CREATE EXTERNAL MODEL my_chat_model
+WITH (
+    LOCATION = '${OLLAMA_CHAT_URL}',          -- Ollama chat endpoint (set in .env)
+    API_FORMAT = 'Ollama',
+    MODEL_TYPE = TEXT_COMPLETION,
+    MODEL = 'qwen2.5-coder:1.5b',                 -- must match exactly what you pulled with ollama
+    CREDENTIAL = [${NGROK_URL}]
+);
+GO
 
 -- Enable the feature
 EXEC sp_configure 'external rest endpoint enabled', 1;

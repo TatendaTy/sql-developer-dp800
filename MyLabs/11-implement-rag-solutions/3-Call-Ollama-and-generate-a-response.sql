@@ -70,14 +70,14 @@ SET @payload = JSON_OBJECT(
 /* -------------------------------------------------
    Step 4: Call the local Ollama chat model via ngrok
    ------------------------------------------------- */
-DECLARE @CredentialName sysname = N'https://exporter-valley-giddily.ngrok-free.dev';
+DECLARE @CredentialName sysname = N'${NGROK_URL}';
 
 -- You must grant REFERENCES permission on the credential to the user that runs this code.
 -- If you want to be explicit, replace [public] with your SQL user or role.
-GRANT REFERENCES ON DATABASE SCOPED CREDENTIAL::[https://exporter-valley-giddily.ngrok-free.dev] TO [public];
+GRANT REFERENCES ON DATABASE SCOPED CREDENTIAL::[${NGROK_URL}] TO [public];
 
 EXECUTE @returnValue = sp_invoke_external_rest_endpoint
-    @url = N'https://exporter-valley-giddily.ngrok-free.dev/api/chat',         -- Ollama chat endpoint (ngrok HTTPS)
+    @url = N'${OLLAMA_CHAT_URL}',         -- Ollama chat endpoint (ngrok HTTPS)
     @method = 'POST',
     @payload = @payload,
     @credential = @CredentialName,
